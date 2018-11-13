@@ -18,7 +18,9 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:
+    Sandbox.AbelianGroup
     Sandbox.DiscLogCompare
+    Sandbox.Paillier
   other-extensions:
     FlexibleContexts
     RecordWildCards
