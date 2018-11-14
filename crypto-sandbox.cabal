@@ -20,6 +20,7 @@ library
   exposed-modules:
     Sandbox.AbelianGroup
     Sandbox.DiscLogCompare
+    Sandbox.Number
     Sandbox.Paillier
   other-extensions:
     FlexibleContexts

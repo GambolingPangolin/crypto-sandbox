@@ -3,7 +3,6 @@
 --
 -- An implementation of the Paillier cryptosystem
 
-{-# LANGUAGE BangPatterns    #-}
 {-# LANGUAGE RecordWildCards #-}
 
 module Sandbox.Paillier where
@@ -13,6 +12,7 @@ import           Crypto.Number.ModArithmetic
 import           Crypto.Number.Prime
 import           Crypto.Random
 import           Data.Function
+import           Sandbox.Number
 
 -- ~~~~~ --
 -- Model --
@@ -100,23 +100,6 @@ keyPair p q = (PrivateKey λ μ, PublicKey n g)
     n = p * q
     g = n + 1
     λ = lcm (p-1) (q-1)
-    μ = let u = l `euclideanConj` n in u `mod` n
+    μ = let u = fst $ l `euclideanConj` n in u `mod` n
     l = paillierL n $ expSafe g λ (n^2)
-
--- | Given n and x find a y such that x * y = gcd x n `mod` n
-euclideanConj :: Integer -> Integer -> Integer
-euclideanConj x n
-  | x > n = go (0,1) (1,0)
-  | otherwise = go (1,0) (0,1)
-  where
-    go (!u1, !v1) (!u2, !v2) =
-      -- (u1 * n + v1 * x) = u * (u2 * n + v2 * x) + v
-      let (u, v) = a `quotRem` b in
-      if v > 0
-        -- go b v
-        then go (u2, v2) (u1 - u * u2, v1 - u * v2)
-        else v2
-      where
-        a = u1 * n + v1 * x
-        b = u2 * n + v2 * x
 
