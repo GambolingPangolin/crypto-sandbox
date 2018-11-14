@@ -9,6 +9,7 @@
 module Sandbox.Paillier where
 
 import           Crypto.Number.Generate
+import           Crypto.Number.ModArithmetic
 import           Crypto.Number.Prime
 import           Crypto.Random
 import           Data.Function
@@ -51,14 +52,14 @@ newKeyPair bw =
 -- | Apply the decription algorithm
 paillierDecrypt :: PrivateKey -> PublicKey -> Ciphertext -> Integer
 paillierDecrypt PrivateKey{..} PublicKey{..} (Ciphertext x) =
-  let l = paillierL n (x ^ λ `mod` n^2) in (l * μ) `mod` n
+  let l = paillierL n (expSafe x λ (n^2)) in (l * μ) `mod` n
 
 {-# INLINE paillierDecrypt #-}
 
 -- | Deterministic form of the encryption algorithm
 paillierEncrypt :: Integral a => PublicKey -> Integer -> a -> Ciphertext
 paillierEncrypt PublicKey{..} r msg =
-  Ciphertext $ (g ^ (toInteger msg) * r ^ n) `mod` n^2
+  Ciphertext $ (expSafe g (toInteger msg) (n^2) * expSafe r n (n^2)) `mod` n^2
 
 {-# INLINE paillierEncrypt #-}
 
@@ -71,7 +72,7 @@ withPaillier pub@PublicKey{..} k = k $ PaillierKit e d a s
     e msg = sampleNonce n & fmap (\r -> paillierEncrypt pub r msg)
     d sk c = paillierDecrypt sk pub c
     (Ciphertext x) `a` (Ciphertext y) = Ciphertext $ x * y `mod` n^2
-    k `s` (Ciphertext x) = Ciphertext $ x ^ k `mod` n^2
+    k `s` (Ciphertext x) = Ciphertext $ expSafe x k (n^2)
 
 
 -- ~~~~~~~~~ --
@@ -100,7 +101,7 @@ keyPair p q = (PrivateKey λ μ, PublicKey n g)
     g = n + 1
     λ = lcm (p-1) (q-1)
     μ = let u = l `euclideanConj` n in u `mod` n
-    l = paillierL n $ g ^ λ `mod` n^2
+    l = paillierL n $ expSafe g λ (n^2)
 
 -- | Given n and x find a y such that x * y = gcd x n `mod` n
 euclideanConj :: Integer -> Integer -> Integer
@@ -118,3 +119,4 @@ euclideanConj x n
       where
         a = u1 * n + v1 * x
         b = u2 * n + v2 * x
+
