@@ -4,7 +4,7 @@ crypto-sandbox
 It looks like this is going to be where I gain a toe hold on implementing cryptography.
 
 Paillier cryptosystem
----
+----
 
 ```haskell
 {-# LANGUAGE RecordWildCards #-}
@@ -35,3 +35,13 @@ main = newKeyPair 128 >>= \(sk, pk) ->
     print $ 21 * msg2
     print $ decrypt sk e4
 ```
+
+Discreet log contracts
+----
+
+[Discreet log contracts][dcl] is a system by which an "oracle" can sign one of 
+many messages and other users can use this signature to unlock transaction 
+outputs.  See `example` in `src/Sandbox/DiscreetLogContracts.hs` for a worked 
+discreet log contract flow.
+
+[dcl]: https://adiabat.github.io/dlc.pdf
